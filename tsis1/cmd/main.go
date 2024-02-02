@@ -2,7 +2,7 @@ package main
 
 import (
 	"net/http"
-	"tsis1/pkg"
+	pkg "tsis1/pkg/handlers"
 
 	"github.com/gorilla/mux"
 )
