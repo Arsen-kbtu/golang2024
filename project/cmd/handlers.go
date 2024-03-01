@@ -84,3 +84,55 @@ func (app *application) createClubHandler(w http.ResponseWriter, r *http.Request
 
 	app.respondWithJSON(w, http.StatusCreated, club)
 }
+func (app *application) updateClubHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	clubName := vars["clubname"]
+	id, err := strconv.Atoi(vars["id"])
+
+	if err != nil {
+		app.respondWithError(w, http.StatusBadRequest, "Invalid club ID")
+		return
+	}
+
+	var club pkg.Club
+	err = json.NewDecoder(r.Body).Decode(&club)
+
+	if err != nil {
+		app.respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+
+	if club.ClubName == "" || club.ClubCity == "" {
+		app.respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+
+	club.ClubID = id
+	club.ClubName = clubName
+	err = app.models.Clubs.UpdateClub(id, clubName)
+
+	if err != nil {
+		app.respondWithError(w, http.StatusInternalServerError, "500 Internal Server Error")
+		return
+	}
+
+	app.respondWithJSON(w, http.StatusOK, club)
+}
+func (app *application) deleteClubHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+
+	if err != nil {
+		app.respondWithError(w, http.StatusBadRequest, "Invalid club ID")
+		return
+	}
+
+	err = app.models.Clubs.DeleteClub(id)
+
+	if err != nil {
+		app.respondWithError(w, http.StatusInternalServerError, "500 Internal Server Error")
+		return
+	}
+
+	app.respondWithJSON(w, http.StatusNoContent, nil)
+}

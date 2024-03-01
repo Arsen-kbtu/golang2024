@@ -26,9 +26,9 @@ type application struct {
 
 func main() {
 	var cfg config
-	flag.StringVar(&cfg.port, "port", ":8081", "API server port")
+	flag.StringVar(&cfg.port, "port", ":5432", "API server port")
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
-	flag.StringVar(&cfg.db.dsn, "db-dsn", "postgres://codev0:pa55word@localhost/lecture6?sslmode=disable", "PostgreSQL DSN")
+	flag.StringVar(&cfg.db.dsn, "db-dsn", "postgres://postgres:vinnyPaf12@localhost:5432/project?sslmode=disable", "PostgreSQL DSN")
 	flag.Parse()
 
 	// Connect to DB
@@ -53,13 +53,13 @@ func (app *application) run() {
 
 	// Menu Singleton
 	// Create a new menu
-	// v1.HandleFunc("/menus", app.createPlayerHandler).Methods("POST")
+	v1.HandleFunc("/clubs", app.createClubHandler).Methods("POST")
 	// Get a specific menu
-	v1.HandleFunc("/menus/{menuId:[0-9]+}", app.getPlayerHandler).Methods("GET")
+	v1.HandleFunc("/clubs/{clubId:[0-9]+}", app.getClubHandler).Methods("GET")
 	// Update a specific menu
-	// v1.HandleFunc("/menus/{menuId:[0-9]+}", app.updateMenuHandler).Methods("PUT")
+	v1.HandleFunc("/clubs/{clubId:[0-9]+}", app.updateClubHandler).Methods("PUT")
 	// Delete a specific menu
-	// v1.HandleFunc("/menus/{menuId:[0-9]+}", app.deleteMenuHandler).Methods("DELETE")
+	v1.HandleFunc("/clubs/{clubId:[0-9]+}", app.deleteClubHandler).Methods("DELETE")
 
 	log.Printf("Starting server on %s\n", app.config.port)
 	err := http.ListenAndServe(app.config.port, r)
