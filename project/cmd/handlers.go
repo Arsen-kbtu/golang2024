@@ -25,24 +25,25 @@ func (app *application) respondWithJSON(w http.ResponseWriter, code int, payload
 	w.WriteHeader(code)
 	w.Write(response)
 }
-func (app *application) getPlayerHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	number, err := strconv.Atoi(vars["number"])
 
-	if err != nil {
-		app.respondWithError(w, http.StatusBadRequest, "Invalid player number")
-		return
-	}
+// func (app *application) getPlayerHandler(w http.ResponseWriter, r *http.Request) {
+// 	vars := mux.Vars(r)
+// 	number, err := strconv.Atoi(vars["number"])
 
-	player, err := app.models.Players.GetPlayer(number)
+// 	if err != nil {
+// 		app.respondWithError(w, http.StatusBadRequest, "Invalid player number")
+// 		return
+// 	}
 
-	if err != nil {
-		app.respondWithError(w, http.StatusNotFound, "Player not found")
-		return
-	}
+// 	player, err := app.models.Players.GetPlayer(number)
 
-	app.respondWithJSON(w, http.StatusOK, player)
-}
+// 	if err != nil {
+// 		app.respondWithError(w, http.StatusNotFound, "Player not found")
+// 		return
+// 	}
+
+//		app.respondWithJSON(w, http.StatusOK, player)
+//	}
 func (app *application) getClubHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
