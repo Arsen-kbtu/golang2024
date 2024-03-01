@@ -1,0 +1,23 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table Players{
+  id integer
+  club_id integer
+  name varchar 
+  surname varchar
+  number integer
+  age integer
+  position varchar
+  nation varchar
+ 
+}
+Table League{
+  club_id varchar
+  name varchar
+  position integer
+  points integer
+}
+
+
+Ref: "League"."club_id" < "Players"."club_id"
