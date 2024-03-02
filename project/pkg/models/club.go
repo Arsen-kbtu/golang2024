@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"time"
 )
@@ -22,9 +23,9 @@ type ClubModel struct {
 
 func (m *ClubModel) InsertClub(club *Club) error {
 	query := `
-			INSERT INTO clubs (clubname, clubcity, leagueplace, leaguepoints) 
+			INSERT INTO clubs (clubname, clubcity, leagueplacement, leaguepoints) 
 			VALUES ($1, $2, $3, $4)
-			RETURNING id
+			RETURNING clubid
 			`
 	args := []interface{}{club.ClubName, club.ClubCity, club.LeaguePlace, club.LeaguePoints}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -33,7 +34,7 @@ func (m *ClubModel) InsertClub(club *Club) error {
 }
 func (m *ClubModel) GetClubs() ([]*Club, error) {
 	query := `
-			SELECT id, clubname, clubcity, leagueplace, leaguepoints
+			SELECT clubid, clubname, clubcity, leagueplacement, leaguepoints
 			FROM clubs
 			`
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -59,35 +60,40 @@ func (m *ClubModel) GetClubs() ([]*Club, error) {
 }
 func (m *ClubModel) GetClub(id int) (*Club, error) {
 	query := `
-			SELECT id, clubname, clubcity, leagueplace, leaguepoints
+			SELECT *
 			FROM clubs
-			WHERE id = $1
+			WHERE clubid = $1
+			
 			`
 	var club Club
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	row := m.DB.QueryRowContext(ctx, query, id)
 	err := row.Scan(&club.ClubID, &club.ClubName, &club.ClubCity, &club.LeaguePlace, &club.LeaguePoints)
+	fmt.Println(club)
 	if err != nil {
 		return nil, err
 	}
 	return &club, nil
 }
-func (m *ClubModel) UpdateClub(id int, name string) error {
+func (m *ClubModel) UpdateClub(club *Club) error {
 	query := `
 			UPDATE clubs
 			SET clubname = $1,
-			WHERE id = $2
+			clubcity = $2,
+			leagueplacement = $3,
+			leaguepoints = $4
+			WHERE clubid = $5
 			`
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	_, err := m.DB.ExecContext(ctx, query, name, id)
+	_, err := m.DB.ExecContext(ctx, query, club.ClubName, club.ClubCity, club.LeaguePlace, club.LeaguePoints, club.ClubID)
 	return err
 }
 func (m *ClubModel) DeleteClub(id int) error {
 	query := `
 			DELETE FROM clubs
-			WHERE id = $1
+			WHERE clubid = $1
 			`
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()

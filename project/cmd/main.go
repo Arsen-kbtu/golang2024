@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	pkg "project/pkg/models"
@@ -26,9 +27,9 @@ type application struct {
 
 func main() {
 	var cfg config
-	flag.StringVar(&cfg.port, "port", ":5432", "API server port")
+	flag.StringVar(&cfg.port, "port", ":8080", "API server port")
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
-	flag.StringVar(&cfg.db.dsn, "db-dsn", "postgres://postgres:password@localhost:5432/project?sslmode=disable", "PostgreSQL DSN")
+	flag.StringVar(&cfg.db.dsn, "db-dsn", "postgres://postgres:vinnyPaf12@localhost:5432/project?sslmode=disable", "PostgreSQL DSN")
 	flag.Parse()
 
 	// Connect to DB
@@ -38,7 +39,12 @@ func main() {
 		return
 	}
 	defer db.Close()
-
+	err = db.Ping()
+	if err != nil {
+		log.Fatal("Cannot connect to the database: ", err)
+	} else {
+		log.Println("Connected to the database")
+	}
 	app := &application{
 		config: cfg,
 		models: pkg.NewModels(db),
@@ -68,6 +74,7 @@ func (app *application) run() {
 func openDB(cfg config) (*sql.DB, error) {
 	// Use sql.Open() to create an empty connection pool, using the DSN from the config // struct.
 	db, err := sql.Open("postgres", cfg.db.dsn)
+	fmt.Println(db)
 	if err != nil {
 		return nil, err
 	}

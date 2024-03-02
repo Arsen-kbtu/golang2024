@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	pkg "project/pkg/models"
 	"strconv"
@@ -46,8 +47,8 @@ func (app *application) respondWithJSON(w http.ResponseWriter, code int, payload
 //	}
 func (app *application) getClubHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-
+	id, err := strconv.Atoi(vars["clubId"])
+	fmt.Println(id)
 	if err != nil {
 		app.respondWithError(w, http.StatusBadRequest, "Invalid club ID")
 		return
@@ -86,17 +87,13 @@ func (app *application) createClubHandler(w http.ResponseWriter, r *http.Request
 	app.respondWithJSON(w, http.StatusCreated, club)
 }
 func (app *application) updateClubHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	clubName := vars["clubname"]
-	id, err := strconv.Atoi(vars["id"])
+	var club pkg.Club
+	err := json.NewDecoder(r.Body).Decode(&club)
 
 	if err != nil {
 		app.respondWithError(w, http.StatusBadRequest, "Invalid club ID")
 		return
 	}
-
-	var club pkg.Club
-	err = json.NewDecoder(r.Body).Decode(&club)
 
 	if err != nil {
 		app.respondWithError(w, http.StatusBadRequest, "Invalid request payload")
@@ -108,9 +105,7 @@ func (app *application) updateClubHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	club.ClubID = id
-	club.ClubName = clubName
-	err = app.models.Clubs.UpdateClub(id, clubName)
+	err = app.models.Clubs.UpdateClub(&club)
 
 	if err != nil {
 		app.respondWithError(w, http.StatusInternalServerError, "500 Internal Server Error")
@@ -121,7 +116,7 @@ func (app *application) updateClubHandler(w http.ResponseWriter, r *http.Request
 }
 func (app *application) deleteClubHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
+	id, err := strconv.Atoi(vars["clubId"])
 
 	if err != nil {
 		app.respondWithError(w, http.StatusBadRequest, "Invalid club ID")
