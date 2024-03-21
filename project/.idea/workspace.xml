@@ -5,13 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f544b968-b6bb-4f48-9053-2c1a85033da8" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/dabda619-01f1-431c-a0ff-50f698ae9d13.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/dabda619-01f1-431c-a0ff-50f698ae9d13.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/dabda619-01f1-431c-a0ff-50f698ae9d13/storage_v2/_src_/database/postgres.edMnLQ/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/dabda619-01f1-431c-a0ff-50f698ae9d13/storage_v2/_src_/database/postgres.edMnLQ/schema/public.abK9xQ.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/dabda619-01f1-431c-a0ff-50f698ae9d13/storage_v2/_src_/database/project.GUuQ7Q/schema/information_schema.FNRwLQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/dabda619-01f1-431c-a0ff-50f698ae9d13/storage_v2/_src_/database/project.GUuQ7Q/schema/information_schema.FNRwLQ.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/dabda619-01f1-431c-a0ff-50f698ae9d13/storage_v2/_src_/database/project.GUuQ7Q/schema/pg_catalog.0S1ZNQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/dabda619-01f1-431c-a0ff-50f698ae9d13/storage_v2/_src_/database/project.GUuQ7Q/schema/pg_catalog.0S1ZNQ.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/dabda619-01f1-431c-a0ff-50f698ae9d13/storage_v2/_src_/database/project.GUuQ7Q/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/dabda619-01f1-431c-a0ff-50f698ae9d13/storage_v2/_src_/database/project.GUuQ7Q/schema/public.abK9xQ.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/handlers.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/handlers.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/models/club.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/models/club.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/handlers.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/epl/handlers.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/epl/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/migrations/1_create_clubs_table.down.sql" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/epl/migrations/1_create_clubs_table.down.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/migrations/1_create_clubs_table.up.sql" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/epl/migrations/1_create_clubs_table.up.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/models/club.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/epl/models/club.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/models/model.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/epl/models/model.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/models/player.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/epl/models/player.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,43 +54,51 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Go Build.go build project/cmd.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "RunOnceActivity.go.modules.automatic.dependencies.download": "true",
-    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
-    "git-widget-placeholder": "master",
-    "go.import.settings.migrated": "true",
-    "go.sdk.automatically.set": "true",
-    "last_opened_file_path": "C:/Users/zhexa/OneDrive/Рабочий стол/code/golang2024/project",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Go Build.go build project/cmd.executor&quot;: &quot;Run&quot;,
+    &quot;Go Build.go build project/cmd/epl.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.automatic.dependencies.download&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/zhexa/OneDrive/Рабочий стол/code/golang2024/project&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "postgresql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;postgresql&quot;
     ]
   }
-}]]></component>
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\zhexa\OneDrive\Рабочий стол\code\golang2024\project\pkg\epl" />
+      <recent name="C:\Users\zhexa\OneDrive\Рабочий стол\code\golang2024\project\cmd\epl" />
+      <recent name="C:\Users\zhexa\OneDrive\Рабочий стол\code\golang2024\project\cmd" />
+    </key>
+  </component>
   <component name="RunManager">
-    <configuration name="go build project/cmd" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+    <configuration name="go build project/cmd/epl" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="project" />
       <working_directory value="$PROJECT_DIR$" />
       <kind value="PACKAGE" />
-      <package value="project/cmd" />
+      <package value="project/cmd/epl" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$/cmd/main.go" />
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Go Build.go build project/cmd" />
+        <item itemvalue="Go Build.go build project/cmd/epl" />
       </list>
     </recent_temporary>
   </component>
@@ -98,18 +113,24 @@
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="CUSTOM_BOOLEAN_PROPERTIES">
+                <map>
+                  <entry key="Show.Git.Branches" value="true" />
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/cmd/handlers.go</url>
-          <line>88</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>
