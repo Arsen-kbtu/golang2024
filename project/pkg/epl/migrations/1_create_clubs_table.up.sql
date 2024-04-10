@@ -25,3 +25,9 @@ CREATE TABLE IF NOT EXISTS model (
                                      FOREIGN KEY (clubId) REFERENCES clubs(clubId),
     FOREIGN KEY (playerId) REFERENCES players(playerId)
     );
+CREATE TABLE IF NOT EXISTS Users
+(
+    user_id  SERIAL PRIMARY KEY,
+    username VARCHAR(50)  NOT NULL,
+    password VARCHAR(100) NOT NULL
+    );

@@ -5,28 +5,12 @@ import (
 	"fmt"
 	"net/http"
 	pkg "project/pkg/epl/models"
+	"project/pkg/epl/validator"
 
 	"strconv"
 
 	"github.com/gorilla/mux"
 )
-
-func (app *application) respondWithError(w http.ResponseWriter, code int, message string) {
-	app.respondWithJSON(w, code, map[string]string{"error": message})
-}
-
-func (app *application) respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
-	response, err := json.Marshal(payload)
-
-	if err != nil {
-		app.respondWithError(w, http.StatusInternalServerError, "500 Internal Server Error")
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	w.Write(response)
-}
 
 // player handlers
 func (app *application) getPlayerHandler(w http.ResponseWriter, r *http.Request) {
@@ -126,13 +110,49 @@ func (app *application) deletePlayerHandler(w http.ResponseWriter, r *http.Reque
 
 // Club Handlers
 func (app *application) getClubsHandler(w http.ResponseWriter, r *http.Request) {
-	clubs, err := app.models.Clubs.GetClubs()
+	var input struct {
+		ClubName string
+		Clubcity string
+		pkg.Filters
+	}
+	// Initialize a new Validator instance.
+	v := validator.New()
+	// Call r.URL.Query() to get the url.Values map containing the query string data.
+	qs := r.URL.Query()
+	// Use our helpers to extract the title and genres query string values, falling back
+	// to defaults of an empty string and an empty slice respectively if they are not
+	// provided by the client.
+	input.ClubName = app.readString(qs, "clubname", "")
+	input.Clubcity = app.readString(qs, "clubcity", "")
+	// Get the page and page_size query string values as integers. Notice that we set
+	// the default page value to 1 and default page_size to 20, and that we pass the
+	// validator instance as the final argument here.
+	input.Filters.Page = app.readInt(qs, "page", 1, v)
+	input.Filters.PageSize = app.readInt(qs, "page_size", 20, v)
+	// Extract the sort query string value, falling back to "id" if it is not provided
+	// by the client (which will imply a ascending sort on movie ID).
+	input.Filters.Sort = app.readString(qs, "sort", "clubid")
+	input.Filters.SortSafelist = []string{"clubid", "clubname", "clubcity", "leagueplacement", "-clubid", "-clubname", "-clubcity", "-leagueplacement"}
+	// Check the Validator instance for any errors and use the failedValidationResponse()
+	// helper to send the client a response if necessary.
+	if pkg.ValidateFilters(v, input.Filters); !v.Valid() {
+		//app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+	if !v.Valid() {
+		//app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+	// Dump the contents of the input struct in a HTTP response.
+	//fmt.Fprintf(w, "%+v\n", input)
+
+	clubs, metadata, err := app.models.Clubs.GetClubs(input.ClubName, input.Clubcity, input.Filters)
 
 	if err != nil {
 		app.respondWithError(w, http.StatusInternalServerError, "500 Internal Server Error")
 		return
 	}
-
+	fmt.Println(metadata)
 	app.respondWithJSON(w, http.StatusOK, clubs)
 }
 func (app *application) getClubHandler(w http.ResponseWriter, r *http.Request) {

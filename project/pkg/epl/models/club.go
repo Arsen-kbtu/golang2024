@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"time"
 )
@@ -32,24 +33,38 @@ func (m *ClubModel) InsertClub(club *Club) error {
 	defer cancel()
 	return m.DB.QueryRowContext(ctx, query, args...).Scan(&club.ClubID)
 }
-func (m *ClubModel) GetClubs() ([]*Club, error) {
-	query := `
-			SELECT clubid, clubname, clubcity, leagueplacement, leaguepoints
-			FROM clubs
-			`
+func (m *ClubModel) GetClubs(clubname string, clubcity string, filters Filters) ([]*Club, Metadata, error) {
+	query := fmt.Sprintf(
+		`
+		SELECT  count(*) OVER(), *
+		FROM clubs
+		WHERE (STRPOS(LOWER(clubname), LOWER($1)) > 0 OR $1= '')
+		AND (STRPOS(LOWER(clubcity), LOWER($2)) > 0 or $2 = '')
+		ORDER BY %s %s, clubid ASC
+		LIMIT $3 OFFSET $4`, filters.sortColumn(), filters.sortDirection())
+	//query := `
+	//		SELECT count(*) OVER(), *
+	//		FROM clubs
+	//		WHERE (STRPOS(LOWER(clubname), LOWER($1)) > 0 OR $1= '')
+	//		AND (STRPOS(LOWER(clubcity), LOWER($2)) > 0 or $2 = '')
+	//
+	//		LIMIT $3 OFFSET $4`
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	rows, err := m.DB.QueryContext(ctx, query)
+	args := []interface{}{clubname, clubcity, filters.limit(), filters.offset()}
+	rows, err := m.DB.QueryContext(ctx, query, args...)
+	fmt.Println(err)
 	if err != nil {
-		return nil, err
+		return nil, Metadata{}, err
 	}
 	defer rows.Close()
 	var clubs []*Club
+	totalRecords := 0
 	for rows.Next() {
 		var club Club
-		err := rows.Scan(&club.ClubID, &club.ClubName, &club.ClubCity, &club.LeaguePlace, &club.LeaguePoints)
+		err := rows.Scan(&totalRecords, &club.ClubID, &club.ClubName, &club.ClubCity, &club.LeaguePlace, &club.LeaguePoints)
 		if err != nil {
-			return nil, err
+			return nil, Metadata{}, err
 		}
 		clubs = append(clubs, &club)
 
@@ -60,7 +75,7 @@ func (m *ClubModel) GetClubs() ([]*Club, error) {
     `
 		rows, err := m.DB.QueryContext(ctx, playersQuery, club.ClubID)
 		if err != nil {
-			return nil, err
+			return nil, Metadata{}, err
 		}
 		defer rows.Close()
 
@@ -69,15 +84,17 @@ func (m *ClubModel) GetClubs() ([]*Club, error) {
 			var player Player
 			err := rows.Scan(&player.PlayerID, &player.ClubID, &player.FirstName, &player.LastName, &player.Age, &player.Number, &player.Position, &player.Nation)
 			if err != nil {
-				return nil, err
+				return nil, Metadata{}, err
 			}
 			club.Players = append(club.Players, player)
 		}
 	}
+	metadata := calculateMetadata(totalRecords, filters.Page, filters.PageSize)
+
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, Metadata{}, err
 	}
-	return clubs, nil
+	return clubs, metadata, nil
 }
 func (m *ClubModel) GetClub(id int) (*Club, error) {
 	query := `
