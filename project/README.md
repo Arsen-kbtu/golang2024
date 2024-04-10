@@ -4,11 +4,11 @@ This is REST API that shows list of clubs that play in EPL, and players of those
 
 ## Endpoints
 - GET /clubs/{id}: Get information about specific club
-- GET /clubs: Get information about all clubs
+- GET /clubs: Get information about all clubs. Fully working filtering, sorting, and pagination.
 - POST /clubs: Add new club
 - UPDATE /clubs/{id}: updates information about specific club
 - DELETE /clubs/{id}: deletes specific club
-Fully working filtering, sorting, and pagination in /clubs
+
 - GET /players/{id}: Get information about specific player
 - GET /players: Get information about all players
 - POST /players: Add new player
