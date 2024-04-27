@@ -7,8 +7,11 @@ import (
 )
 
 type Models struct {
-	Players PlayerModel
-	Clubs   ClubModel
+	Players     PlayerModel
+	Clubs       ClubModel
+	Users       UserModel
+	Tokens      TokenModel
+	Permissions PermissionModel
 }
 
 func NewModels(db *sql.DB) Models {
@@ -24,6 +27,15 @@ func NewModels(db *sql.DB) Models {
 			DB:       db,
 			InfoLog:  infoLog,
 			ErrorLog: errorLog,
+		},
+		Users: UserModel{
+			DB: db,
+		},
+		Tokens: TokenModel{
+			DB: db,
+		},
+		Permissions: PermissionModel{
+			DB: db,
 		},
 	}
 }

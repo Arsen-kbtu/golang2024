@@ -12,7 +12,7 @@ import (
 )
 
 type config struct {
-	port string
+	port int
 	env  string
 	db   struct {
 		dsn string
@@ -26,7 +26,7 @@ type application struct {
 
 func main() {
 	var cfg config
-	flag.StringVar(&cfg.port, "port", ":8080", "API server port")
+	flag.IntVar(&cfg.port, "port", 8080, "API server port")
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
 	flag.StringVar(&cfg.db.dsn, "db-dsn", "postgres://postgres:password@localhost:5432/project?sslmode=disable", "PostgreSQL DSN")
 	flag.Parse()
@@ -49,9 +49,13 @@ func main() {
 		models: pkg.NewModels(db),
 	}
 
-	app.run()
+	if err := app.serve(); err != nil {
+		fmt.Sprintf("error starting server: %v\n", err)
+	}
+	//app.run()
 }
-func (app *application) run() {
+
+func (app *application) run() http.Handler {
 	r := mux.NewRouter()
 
 	v1 := r.PathPrefix("/api/v1").Subrouter()
@@ -61,7 +65,7 @@ func (app *application) run() {
 	v1.HandleFunc("/clubs", app.createClubHandler).Methods("POST")
 	// Get a specific menu
 	v1.HandleFunc("/clubs", app.getClubsHandler).Methods("GET")
-	v1.HandleFunc("/clubs/{clubId:[0-9]+}", app.getClubHandler).Methods("GET")
+	v1.HandleFunc("/clubs/{clubId:[0-9]+}", app.requireActivatedUser(app.getClubHandler)).Methods("GET")
 	// Update a specific menu
 	v1.HandleFunc("/clubs/{clubId:[0-9]+}", app.updateClubHandler).Methods("PUT")
 	// Delete a specific menu
@@ -69,12 +73,21 @@ func (app *application) run() {
 
 	v1.HandleFunc("/players", app.createPlayerHandler).Methods("POST")
 	v1.HandleFunc("/players", app.getPlayersHandler).Methods("GET")
-	v1.HandleFunc("/players/{playerId:[0-9]+}", app.getPlayerHandler).Methods("GET")
+	v1.HandleFunc("/players/{playerId:[0-9]+}", app.requireActivatedUser(app.getPlayerHandler)).Methods("GET")
 	v1.HandleFunc("/players/{playerId:[0-9]+}", app.updatePlayerHandler).Methods("PUT")
 	v1.HandleFunc("/players/{playerId:[0-9]+}", app.deletePlayerHandler).Methods("DELETE")
+
+	v1.HandleFunc("/users", app.registerUserHandler).Methods("POST")
+	v1.HandleFunc("/users/activated", app.activateUserHandler).Methods("PUT")
+	v1.HandleFunc("/tokens/authentication", app.createAuthenticationTokenHandler).Methods("POST")
+
 	log.Printf("Starting server on %s\n", app.config.port)
-	err := http.ListenAndServe(app.config.port, r)
-	log.Fatal(err)
+	//err := http.ListenAndServe(app.config.port, r)
+	//if err != nil {
+	//
+	//}
+	return app.authenticate(r)
+
 }
 func openDB(cfg config) (*sql.DB, error) {
 	// Use sql.Open() to create an empty connection pool, using the DSN from the config // struct.
