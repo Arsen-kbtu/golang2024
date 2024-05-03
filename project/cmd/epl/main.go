@@ -4,6 +4,9 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 	"log"
@@ -28,7 +31,7 @@ func main() {
 	var cfg config
 	flag.IntVar(&cfg.port, "port", 8080, "API server port")
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
-	flag.StringVar(&cfg.db.dsn, "db-dsn", "postgres://postgres:password@localhost:5432/project?sslmode=disable", "PostgreSQL DSN")
+	flag.StringVar(&cfg.db.dsn, "db-dsn", "postgres://postgres:password@postgres:5432/project?sslmode=disable", "PostgreSQL DSN")
 	flag.Parse()
 
 	// Connect to DB
@@ -96,5 +99,28 @@ func openDB(cfg config) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	migrationUp(db)
 	return db, nil
+}
+func migrationUp(db *sql.DB) {
+	driver, err := postgres.WithInstance(db, &postgres.Config{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Путь к файлам миграции
+	//m, err := migrate.NewWithDatabaseInstance(
+	//	"file:///usr/src/app/internal/migrations",
+	//	"postgres", driver)
+	m, err := migrate.NewWithDatabaseInstance(
+		"file://pkg/epl/migrations",
+		"postgres", driver)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Применение миграций
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Fatal(err)
+	}
 }

@@ -1,15 +1,16 @@
+CREATE EXTENSION IF NOT EXISTS citext;
 CREATE TABLE IF NOT EXISTS clubs (
-                                     clubId SERIAL PRIMARY KEY,
-                                     clubName VARCHAR(255) NOT NULL,
+    clubId SERIAL PRIMARY KEY,
+    clubName VARCHAR(255) NOT NULL,
     clubCity VARCHAR(255) NOT NULL,
     leaguePlacement INT NOT NULL,
     leaguePoints INT NOT NULL
-    );
+);
 
 CREATE TABLE IF NOT EXISTS players (
-                                       playerId SERIAL PRIMARY KEY,
-                                       playerClubId INT NOT NULL,
-                                       playerFirstName VARCHAR(255) NOT NULL,
+    playerId SERIAL PRIMARY KEY,
+    playerClubId INT NOT NULL,
+    playerFirstName VARCHAR(255) NOT NULL,
     playerLastName VARCHAR(255) NOT NULL,
     playerAge INT NOT NULL,
     playerNumber INT NOT NULL,
