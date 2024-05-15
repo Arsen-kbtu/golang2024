@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"time"
 )
@@ -50,22 +51,30 @@ func (m *PlayerModel) GetPlayer(id int) (*Player, error) {
 	}
 	return &player, nil
 }
-func (m *PlayerModel) GetPlayers() ([]*Player, error) {
-	query := `
-			SELECT playerid, playerclubid,playerfirstname, playerlastname, playerage, playernumber, playerposition, playernationality
-			FROM players
-			`
+func (m *PlayerModel) GetPlayers(firstname string, lastname string, age int, number int, nation string, position string, filters Filters) ([]*Player, error) {
+	query := fmt.Sprintf(
+		`
+		SELECT  count(*) OVER(), *
+		FROM players
+		WHERE (STRPOS(LOWER(playerfirstname), LOWER($1)) > 0 OR $1= '')
+		AND (STRPOS(LOWER(playerlastname), LOWER($2)) > 0 or $2 = '')
+		AND ($3 = 0 OR playerage = $3)
+		AND ($4 = 0 OR playernumber = $4)
+		AND (STRPOS(LOWER(playernationality), LOWER($5)) > 0 or $5 = '')
+		AND (STRPOS(LOWER(playerposition), LOWER($6)) > 0 or $6 = '')
+		ORDER BY %s %s, playerid ASC
+		LIMIT $7 OFFSET $8`, filters.sortColumn(), filters.sortDirection())
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	rows, err := m.DB.QueryContext(ctx, query)
-	if err != nil {
-		return nil, err
-	}
+	args := []interface{}{firstname, lastname, age, number, nation, position, filters.limit(), filters.offset()}
+	rows, err := m.DB.QueryContext(ctx, query, args...)
+	fmt.Println(err)
 	defer rows.Close()
 	var players []*Player
+	totalRecords := 0
 	for rows.Next() {
 		var player Player
-		err := rows.Scan(&player.PlayerID, &player.ClubID, &player.FirstName, &player.LastName, &player.Age, &player.Number, &player.Position, &player.Nation)
+		err := rows.Scan(&totalRecords, &player.PlayerID, &player.ClubID, &player.FirstName, &player.LastName, &player.Age, &player.Number, &player.Position, &player.Nation)
 		if err != nil {
 			return nil, err
 		}

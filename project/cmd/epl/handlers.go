@@ -33,9 +33,50 @@ func (app *application) getPlayerHandler(w http.ResponseWriter, r *http.Request)
 	app.respondWithJSON(w, http.StatusOK, player)
 }
 func (app *application) getPlayersHandler(w http.ResponseWriter, r *http.Request) {
-	players, err := app.models.Players.GetPlayers()
+	var input struct {
+		FirstName string
+		LastName  string
+		Age       int
+		Number    int
+		Nation    string
+		Position  string
+		pkg.Filters
+	}
+	v := validator.New()
+	// Call r.URL.Query() to get the url.Values map containing the query string data.
+	qs := r.URL.Query()
+	// Use our helpers to extract the title and genres query string values, falling back
+	// to defaults of an empty string and an empty slice respectively if they are not
+	// provided by the client.
+	input.FirstName = app.readString(qs, "firstname", "")
+	input.LastName = app.readString(qs, "lastname", "")
+	input.Age = app.readInt(qs, "age", 0, v)
+	input.Number = app.readInt(qs, "number", 0, v)
+	input.Nation = app.readString(qs, "nation", "")
+	input.Position = app.readString(qs, "position", "")
+	// Get the page and page_size query string values as integers. Notice that we set
+	// the default page value to 1 and default page_size to 20, and that we pass the
+	// validator instance as the final argument here.
+	input.Filters.Page = app.readInt(qs, "page", 1, v)
+	input.Filters.PageSize = app.readInt(qs, "page_size", 30, v)
+	// Extract the sort query string value, falling back to "id" if it is not provided
+	// by the client (which will imply a ascending sort on movie ID).
+	input.Filters.Sort = app.readString(qs, "sort", "playerid")
+	input.Filters.SortSafelist = []string{"playerid", "playerclubid", "playerage", "playernumber", "playerposition", "playernationality", "-playerid", "-playerclubid", "-playerage", "-playernumber", "-playerposition", "-playernationality"}
+	// Check the Validator instance for any errors and use the failedValidationResponse()
+	// helper to send the client a response if necessary.
+	if pkg.ValidateFilters(v, input.Filters); !v.Valid() {
+		//app.failedValidationResponse(w, r, v.Errors)
+		app.respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+	}
+	if !v.Valid() {
+		//app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+	players, err := app.models.Players.GetPlayers(input.FirstName, input.LastName, input.Age, input.Number, input.Nation, input.Position, input.Filters)
 
 	if err != nil {
+		fmt.Println(err)
 		app.respondWithError(w, http.StatusInternalServerError, "500 Internal Server Error")
 		return
 	}

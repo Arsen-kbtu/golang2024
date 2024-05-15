@@ -42,13 +42,6 @@ func (m *ClubModel) GetClubs(clubname string, clubcity string, filters Filters) 
 		AND (STRPOS(LOWER(clubcity), LOWER($2)) > 0 or $2 = '')
 		ORDER BY %s %s, clubid ASC
 		LIMIT $3 OFFSET $4`, filters.sortColumn(), filters.sortDirection())
-	//query := `
-	//		SELECT count(*) OVER(), *
-	//		FROM clubs
-	//		WHERE (STRPOS(LOWER(clubname), LOWER($1)) > 0 OR $1= '')
-	//		AND (STRPOS(LOWER(clubcity), LOWER($2)) > 0 or $2 = '')
-	//
-	//		LIMIT $3 OFFSET $4`
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	args := []interface{}{clubname, clubcity, filters.limit(), filters.offset()}
@@ -72,6 +65,7 @@ func (m *ClubModel) GetClubs(clubname string, clubcity string, filters Filters) 
         SELECT *
         FROM players
         WHERE playerclubid = $1
+        ORDER BY playernumber
     `
 		rows, err := m.DB.QueryContext(ctx, playersQuery, club.ClubID)
 		if err != nil {
@@ -116,6 +110,7 @@ func (m *ClubModel) GetClub(id int) (*Club, error) {
         SELECT *
         FROM players
         WHERE playerclubid = $1
+        ORDER BY playernumber
     `
 	rows, err := m.DB.QueryContext(ctx, playersQuery, id)
 	if err != nil {
