@@ -70,7 +70,7 @@ func (app *application) getPlayersHandler(w http.ResponseWriter, r *http.Request
 		app.respondWithError(w, http.StatusBadRequest, "Invalid request payload")
 	}
 	if !v.Valid() {
-		//app.failedValidationResponse(w, r, v.Errors)
+		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 	players, err := app.models.Players.GetPlayers(input.FirstName, input.LastName, input.Age, input.Number, input.Nation, input.Position, input.Filters)
@@ -185,11 +185,11 @@ func (app *application) getClubsHandler(w http.ResponseWriter, r *http.Request) 
 	// Check the Validator instance for any errors and use the failedValidationResponse()
 	// helper to send the client a response if necessary.
 	if pkg.ValidateFilters(v, input.Filters); !v.Valid() {
-		//app.failedValidationResponse(w, r, v.Errors)
+		app.failedValidationResponse(w, r, v.Errors)
 		app.respondWithError(w, http.StatusBadRequest, "Invalid request payload")
 	}
 	if !v.Valid() {
-		//app.failedValidationResponse(w, r, v.Errors)
+		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 	// Dump the contents of the input struct in a HTTP response.
@@ -307,7 +307,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 	// Parse the request body into the anonymous struct.
 	err := app.readJSON(w, r, &input)
 	if err != nil {
-		//app.badRequestResponse(w, r, err)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 	// Copy the data from the request body into a new User struct. Notice also that we
@@ -324,14 +324,14 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 	// passwords.
 	err = user.Password.Set(input.Password)
 	if err != nil {
-		//app.serverErrorResponse(w, r, err)
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 	v := validator.New()
 	// Validate the user struct and return the error messages to the client if any of
 	// the checks fail.
 	if pkg.ValidateUser(v, user); !v.Valid() {
-		//app.failedValidationResponse(w, r, v.Errors)
+		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 	// Insert the user data into the database.
@@ -343,9 +343,9 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		// failedValidationResponse() helper.
 		case errors.Is(err, pkg.ErrDuplicateEmail):
 			v.AddError("email", "a user with this email address already exists")
-			//app.failedValidationResponse(w, r, v.Errors)
+			app.failedValidationResponse(w, r, v.Errors)
 		default:
-			//app.serverErrorResponse(w, r, err)
+			app.serverErrorResponse(w, r, err)
 		}
 		return
 	}
@@ -359,7 +359,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 	// code.
 	token, err := app.models.Tokens.New(user.ID, 3*24*time.Hour, pkg.ScopeActivation)
 	if err != nil {
-		//app.serverErrorResponse(w, r, err)
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 	var res struct {
@@ -372,7 +372,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 
 	err = app.writeJSON(w, http.StatusCreated, envelope{"user": res}, nil)
 	if err != nil {
-		//app.serverErrorResponse(w, r, err)
+		app.serverErrorResponse(w, r, err)
 	}
 
 }
@@ -384,13 +384,13 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 	}
 	err := app.readJSON(w, r, &input)
 	if err != nil {
-		//app.badRequestResponse(w, r, err)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 	// Validate the plaintext token provided by the client.
 	v := validator.New()
 	if pkg.ValidateTokenPlaintext(v, input.TokenPlaintext); !v.Valid() {
-		//app.failedValidationResponse(w, r, v.Errors)
+		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 	// Retrieve the details of the user associated with the token using the
@@ -401,9 +401,9 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 		switch {
 		case errors.Is(err, err):
 			v.AddError("token", "invalid or expired activation token")
-			//app.failedValidationResponse(w, r, v.Errors)
+			app.failedValidationResponse(w, r, v.Errors)
 		default:
-			//app.serverErrorResponse(w, r, err)
+			app.serverErrorResponse(w, r, err)
 		}
 		return
 	}
@@ -415,9 +415,9 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		switch {
 		case errors.Is(err, err):
-			//app.editConflictResponse(w, r)
+			app.editConflictResponse(w, r)
 		default:
-			//app.serverErrorResponse(w, r, err)
+			app.serverErrorResponse(w, r, err)
 		}
 		return
 	}
@@ -425,12 +425,12 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 	// user.
 	err = app.models.Tokens.DeleteAllForUser(pkg.ScopeActivation, user.ID)
 	if err != nil {
-		//app.serverErrorResponse(w, r, err)
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 	// Send the updated user details to the client in a JSON response.
 	err = app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
 	if err != nil {
-		//app.serverErrorResponse(w, r, err)
+		app.serverErrorResponse(w, r, err)
 	}
 }
