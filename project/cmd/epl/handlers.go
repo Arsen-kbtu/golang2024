@@ -109,6 +109,12 @@ func (app *application) createPlayerHandler(w http.ResponseWriter, r *http.Reque
 }
 
 func (app *application) updatePlayerHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err1 := strconv.Atoi(vars["playerId"])
+	if err1 != nil {
+		app.respondWithError(w, http.StatusBadRequest, "Invalid player number")
+		return
+	}
 	var player pkg.Player
 	err := json.NewDecoder(r.Body).Decode(&player)
 
@@ -121,7 +127,7 @@ func (app *application) updatePlayerHandler(w http.ResponseWriter, r *http.Reque
 		app.respondWithError(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
-
+	player.PlayerID = id
 	err = app.models.Players.UpdatePlayer(&player)
 
 	if err != nil {
@@ -241,16 +247,18 @@ func (app *application) createClubHandler(w http.ResponseWriter, r *http.Request
 }
 
 func (app *application) updateClubHandler(w http.ResponseWriter, r *http.Request) {
-	var club pkg.Club
-	err := json.NewDecoder(r.Body).Decode(&club)
-
-	if err != nil {
-		app.respondWithError(w, http.StatusBadRequest, "Invalid club ID")
+	vars := mux.Vars(r)
+	id, err1 := strconv.Atoi(vars["clubId"])
+	if err1 != nil {
+		app.respondWithError(w, http.StatusBadRequest, "Invalid club number")
 		return
 	}
 
+	var club pkg.Club
+	err := json.NewDecoder(r.Body).Decode(&club)
+	club.ClubID = id
 	if err != nil {
-		app.respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		app.respondWithError(w, http.StatusBadRequest, "Invalid club ID")
 		return
 	}
 
